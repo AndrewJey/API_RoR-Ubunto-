@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta http-equiv="Content-Type" content="text/html;">
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <title></title>
+</head>
+<body onload="javascript:chargeButtons();">
+
+        <h1>Login</h1>
+        <form id="form_login" method="post">
+            <label for="username">Username</label>
+            <br/>
+            <input type="text" name="username" id="username" value="root" />
+            <br/>
+            <label for="password">Password</label>
+            <br/>
+            <input type="password" name="password" id="password" value="root"/>
+            <br/>
+            <br/>
+            <button type="button" id="user_login" >Login</button>
+            <button type="button" id="user_logout" >Log out</button>
+            <br/>
+            <br/>
+            <textarea name="" id="userlogin_result"></textarea>
+        </form>
+    <br/>
+        <h2>Products</h2>
+            <input type="text" id="formproductid" />
+            <button id="get_products" type="button">Get Products</button>
+            <br/>
+            <textarea name="" id="products_result"></textarea>
+            <div id="contenidopestanas">
+                <div>
+                    <h3>New Product</h3>
+                    <form accept-charset="UTF-8" method="post" id="form_newproduct">
+                        <label for="new_product_name">Name</label>
+                        <br/>
+                        <input type="text" name="name" id="new_product_name" />
+                        <br/>
+                        <label for="new_product_description">Description</label>
+                        <br/>
+                        <input type="text" name="description" id="new_product_description" />
+                        <br/>
+                        <label for="new_product_estado">Estado</label>
+                        <br/>
+                        <input type="text" name="estado" id="new_product_estado" />
+                        <br/>
+                        <br/>
+                        <button type="button" id="new_product" >Create Product</button>
+                        <br/>
+                        <br/>
+                        <textarea name="" id="createproduct_result"></textarea>
+                    </form>
+                </div>
+                <div>
+                    <h3>Edit</h3>
+                    <form accept-charset="UTF-8" method="put" id="form_editproduct">
+                        <label for="edit_product_id">Id</label>
+                        <br/>
+                        <input type="text" name="id" id="edit_product_id" />
+                        <br/>
+                        <label for="edit_product_name">Name</label>
+                        <br/>
+                        <input type="text" name="name" id="edit_product_name" />
+                        <br/>
+                        <label for="edit_product_description">Description</label>
+                        <br/>
+                        <input type="text" name="description" id="edit_product_description" />
+                        <br/>
+                        <label for="edit_product_estado">Estado</label>
+                        <br/>
+                        <input type="text" name="estado" id="edit_product_estado" />
+                        <br/>
+                        <br/>
+                        <button type="button" id="edit_product" >Edit Product</button>
+                        <br/>
+                        <br/>
+                        <textarea name="" id="editproduct_result"></textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+            <h2>Transactions</h2>
+            <button id="get_transactions" type="button">Get Transactions</button>
+            <br/>
+            <textarea name="" id="transactions_result"></textarea>
+            <br/>
+            <br/>
+            <br/>
+        <form accept-charset="UTF-8" method="post" id="form_newtransaction">
+            <label for="transaction_offert_product_id">Offert product</label>
+            <br/>
+            <input type="text" name="product_offered_id" id="transaction_offert_product_id" />
+            <br/>
+            <label for="transaction_require_product_id">Require product</label>
+            <br/>
+            <input type="text" name="product_req_id" id="transaction_require_product_id" />
+            <br/>
+            <br/>
+            <button type="button" id="new_transaction" >Create Transaction</button>
+            <br/>
+            <br/>
+            <textarea name="" id="createtransaction_result"></textarea>
+        </form>
+
+</body>
+<script src="JavaScript/jquery-1.11.2.min.js"></script>
+<script src="JavaScript/index.js">
+    chargeButtons();
+</script>
+</html>
+
