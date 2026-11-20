@@ -1,54 +1,56 @@
 class UserController < ApplicationController
-
   def signin
-    @msg
-    if User.where(:user=>params[:username]).where(:password=>params[:password]).first#si existe el usuario en Users
-      if ApiKey.where(:userId=>params[:username]).first#si ya tiene sesion
-        update = ApiKey.where(:userId=>params[:username]).first#se busca el token del user
-          update.generate_access_token
-          update.update(current: DateTime.now)#se actualiza a la fecha actual y se cambia de token
-          if update != nil
-            msg = { status: 201 , auth_token: update.access_token}
-          else
-            msg = { status: 422}
-          end
-        respond_to do |format|
-          format.html { render json: msg }
-          format.json { render json: msg }
-        end
+    username = params[:username].to_s.strip
+    password = params[:password].to_s
+
+    if username.empty? || password.empty?
+      msg = { status: 400, response: { error: 'Username and password are required.' } }
+      render_auth_response(msg, :bad_request)
+      return
+    end
+
+    user = User.find_by(user: username, password: password)
+    unless user
+      msg = { status: 401, response: { error: 'Username or password invalid.' } }
+      render_auth_response(msg, :unauthorized)
+      return
+    end
+
+    existing_token = ApiKey.find_by(userId: username)
+    if existing_token
+      existing_token.generate_access_token
+      if existing_token.update(current: DateTime.now)
+        render_auth_response({ status: 201, auth_token: existing_token.access_token }, :created)
       else
-        token = ApiKey.create(userId: params['username'], current: DateTime.now)#si no tiene sesion creada se le crea una
-        if token != nil
-          msg = { status: 201 , auth_token: token.access_token}
-        else
-          msg = { status: 422 }
-        end
-        respond_to do |format|
-          format.html { render json: msg }
-          format.json { render json: msg }
-        end
+        render_auth_response({ status: 422, error: 'Could not refresh token.' }, :unprocessable_entity)
       end
-    else #si no existe el usuario en users
-      msg = { status: 401 , response: {error:'Username or password invalid.'}}
-      respond_to do |format|
-        format.html { render json: msg }
-        format.json { render json: msg }
-      end    
+    else
+      token = ApiKey.create(userId: username, current: DateTime.now)
+      if token && token.persisted?
+        render_auth_response({ status: 201, auth_token: token.access_token }, :created)
+      else
+        render_auth_response({ status: 422, error: 'Could not create token.' }, :unprocessable_entity)
+      end
     end
   end
-  
+
   def signout
-    @msg
-    token = ApiKey.find_by(access_token: request.headers['authtoken'])
-    if token != nil
+    raw_token = request.headers['authtoken'].to_s.strip
+    token = raw_token.empty? ? nil : ApiKey.find_by(access_token: raw_token)
+    if token
       token.destroy
-      msg = { status: 200 , notice: 'Token was successfully destroyed.'}
+      render_auth_response({ status: 200, notice: 'Token was successfully destroyed.' }, :ok)
     else
-     msg = { status: 422 , error: 'Token not found!.'}
+      render_auth_response({ status: 422, error: 'Token not found.' }, :unprocessable_entity)
     end
+  end
+
+  private
+
+  def render_auth_response(msg, http_status)
     respond_to do |format|
-    format.html { render json: msg }
-    format.json { render json: msg }
+      format.html { render json: msg, status: http_status }
+      format.json { render json: msg, status: http_status }
     end
   end
 end

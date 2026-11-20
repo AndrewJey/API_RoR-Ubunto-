@@ -1,48 +1,47 @@
 class TransactionController < ApplicationController
+  def index
+    @transactions = Transaction.all
+    respond_to do |format|
+      format.html { render json: @transactions, status: :ok }
+      format.json { render json: @transactions, status: :ok }
+    end
+  end
 
-    def index
-        @transactions = Transaction.all
-        respond_to do |format|
-            format.html { render json: @transactions }
-            format.json { render json: @transactions }
-        end
+  def new
+    @transaction = Transaction.new
+  end
+
+  def create
+    @transaction = Transaction.new(transaction_params)
+    product_offered = Product.find_by(id: @transaction.product_offered_id)
+    product_required = Product.find_by(id: @transaction.product_req_id)
+
+    if product_offered.nil? || product_required.nil?
+      @msg = { status: 422, message: 'Offered or requested product does not exist.' }
+      http_status = :unprocessable_entity
+    elsif @transaction.product_offered_id == @transaction.product_req_id
+      @msg = { status: 422, message: 'You cannot repeat the product identifier.' }
+      http_status = :unprocessable_entity
+    elsif Transaction.exists?(product_offered_id: @transaction.product_offered_id, product_req_id: @transaction.product_req_id)
+      @msg = { status: 422, message: 'There is already a transaction with those products.' }
+      http_status = :unprocessable_entity
+    elsif @transaction.save
+      @msg = { status: 201, message: 'Transaction created', transaction: @transaction }
+      http_status = :created
+    else
+      @msg = { status: 422, message: 'Could not create the transaction.', errors: @transaction.errors.full_messages }
+      http_status = :unprocessable_entity
     end
 
-    def new
-        @transaction = Transaction.new
+    respond_to do |format|
+      format.html { render json: @msg, status: http_status }
+      format.json { render json: @msg, status: http_status }
     end
+  end
 
-    def create
-        @msg
-        @transaction = Transaction.new(transaction_params)
-        @productoffert=Product.where(:id => @transaction.product_offered_id).first
-        @productrequire=Product.where(:id => @transaction.product_req_id).first
-        if(@productoffert== nil || @productrequire==nil)
-            @msg={status:422 , message:'Producto offer id or require doesnt exits'}
-        else
-            if(@transaction.product_offered_id == @transaction.product_req_id)
-                @msg={status:200 , message:'You can not repeat the identifier'}
-            else
-              if(Transaction.where(:product_offered_id => @transaction.product_offered_id).where(:product_req_id=>@transaction.product_req_id).first)
-                @msg={status:422 , message:'There is already transaction with that arguments'}
-              else
-                if @transaction.save
-                  @msg={status:200 , message:'Transaction created'}
-                else
-                  @msg={status:200 , message:'There was an a error created the transactions'}
-                end
-              end
-            end
-        end
-      respond_to do |format|
-        format.html { render json: @msg }
-        format.json { render json: @msg }
-      end
-    end
+  private
 
-private
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def transaction_params
-        params.permit(:product_offered_id, :product_req_id)
-    end
+  def transaction_params
+    params.permit(:product_offered_id, :product_req_id)
+  end
 end

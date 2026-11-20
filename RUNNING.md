@@ -23,3 +23,11 @@ Inventario y compilaciones locales del 2026-11-15. Una compilación correcta no 
 
 `.gitignore` excluye credenciales locales, estado del editor y salidas de las herramientas detectadas. No deja de versionar archivos que ya estaban en Git. Los manifiestos, archivos de bloqueo, recursos fuente y scripts de esquema forman parte del código.
 <!-- local-development:end -->
+
+<!-- improvements-20261119:start -->
+## Mejoras y verificación — 2026-11-19 (Corrección de NoMethodError en update, códigos HTTP 404/422 y validación de login Rails)
+
+- Corregido `ProductController#update` (llamaba `.update` antes de comprobar `nil`) y añadidos códigos HTTP reales `:ok`, `:created`, `:not_found`, `:unprocessable_entity`.
+- Corregidos los estados HTTP en `TransactionController#create` (errores de validación devolvían `200`, ahora `422` y éxito `201`) y validación de credenciales vacías en `UserController#signin`/`signout`.
+- Validación: `ruby -c` (WSL Ruby 3.2.3) y 9 aserciones unitarias sobre los 3 controladores.
+<!-- improvements-20261119:end -->
